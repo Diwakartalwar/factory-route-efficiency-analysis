@@ -1,2 +1,33 @@
-# Auto detect text files and perform LF normalization
+# Auto detect text files and normalize line endings
 * text=auto
+
+# Python
+*.py text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# CSV and text data
+*.csv text eol=lf
+*.txt text eol=lf
+
+# Streamlit config
+*.toml text eol=lf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text
+
+# Excel files
+*.xlsx binary
+*.xls binary
+
+# Jupyter notebooks (if ever added)
+*.ipynb text
+
+# Git LFS examples (disabled)
+# *.pt filter=lfs diff=lfs merge=lfs -text
+# *.pkl filter=lfs diff=lfs merge=lfs -text
