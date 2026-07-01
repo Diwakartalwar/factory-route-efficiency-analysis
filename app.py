@@ -10,7 +10,49 @@ st.set_page_config(
     page_icon="🍬",
     layout="wide"
 )
+st.markdown("""
+<style>
 
+.card{
+    background:linear-gradient(145deg,#1e293b,#0f172a);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 8px 25px rgba(0,0,0,.30);
+    transition:.3s;
+    height:180px;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    border:1px solid #3b82f6;
+    box-shadow:0 15px 40px rgba(59,130,246,.25);
+}
+
+.card-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#94a3b8;
+    font-size:16px;
+    font-weight:600;
+}
+
+.card-value{
+    font-size:42px;
+    font-weight:700;
+    color:white;
+    margin-top:25px;
+}
+
+.card-footer{
+    color:#22c55e;
+    margin-top:18px;
+    font-size:15px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # ----------------------------------------------------
 # Title
 # ----------------------------------------------------
@@ -21,7 +63,6 @@ st.caption("Interactive logistics analytics dashboard for Nassau Candy Distribut
 # Load Data
 # ----------------------------------------------------
 engine = ShippingAnalysisEngine("data.csv")
-
 try:
     df = engine.load_data()
     engine.clean_data()
@@ -122,16 +163,132 @@ with st.sidebar:
 # ----------------------------------------------------
 # KPI Section
 # ----------------------------------------------------
-st.header("Key Performance Indicators")
+def kpi_card(
+    title,
+    value,
+    icon,
+    subtitle="",
+    color="#3B82F6"
+):
+    st.markdown(
+                f"""
+        <div class="card">
+            <div class="card-header">
+                <span>{icon}</span>
+                <span>{title}</span>
+            </div>
 
-col1, col2, col3, col4 = st.columns(4)
+            <div class="card-value">
+                {value}
+            </div>
 
-col1.metric("Orders", f"{metrics['Total Orders']:,}")
-col2.metric("Sales", f"${metrics['Total Sales']:,.2f}")
-col3.metric("Profit", f"${metrics['Total Profit']:,.2f}")
-col4.metric("Avg Sales", f"${metrics['Average Sales']:.2f}")
+            <div class="card-footer">
+                {subtitle}
+            </div>
+        </div>
+        """,unsafe_allow_html=True)
+with st.container(border=True):
+    st.header("Key Performance Indicators")
+    st.caption("Metrics derived from the loaded dataset.")
+    st.divider()
+    st.subheader("📊 Logistics Overview")
+    st.divider()
+    c1,c2,c3,c4 = st.columns(4)
 
-st.divider()
+    with c1:
+        kpi_card(
+            title="📦 Total Shipments",
+            value=f"{metrics['Total Shipments']:,}",
+            icon="📦"
+        )
+
+    with c2:
+        kpi_card(
+            title="🚚 Avg Lead Time",
+            value=f"{metrics['Average Lead Time']} Days",
+            icon="🚚",
+            subtitle="↓ -0.4 Days"
+        )
+
+    with c3:
+        kpi_card(
+            title="⚠ Delay Rate",
+            value=f"{metrics['Delay Rate']}%",
+            icon="⚠",
+            subtitle="↓ -2.1%"
+        )
+
+    with c4:
+        kpi_card(
+            title="🌎 Regions Served",
+            value=metrics["Regions Served"],
+            icon="🌎"
+        )
+    st.divider()
+    st.subheader("💰 Business Performance")
+    st.divider()
+    c1,c2,c3,c4 = st.columns(4)
+
+    with c1:
+        kpi_card(
+            title="💵 Total Sales",
+            value=f"${metrics['Total Sales']:,.0f}",
+            icon="💵"
+        )
+
+    with c2:
+        kpi_card(
+            title="📈 Gross Profit",
+            value=f"${metrics['Gross Profit']:,.0f}",
+            icon="📈"
+        )
+
+    with c3:
+        kpi_card(
+            title="📦 Units Sold",
+            value=f"{metrics['Total Units']:,}",
+            icon="📦"
+        )
+
+    with c4:
+        kpi_card(
+            title="👥 Customers",
+            value=metrics["Unique Customers"],
+            icon="👥"
+        )
+    st.divider()
+    st.subheader("🚛 Shipping Insights")
+    st.divider()
+    c1,c2,c3,c4 = st.columns(4)
+
+    with c1:
+        kpi_card(
+            title="🚛 Ship Mode",
+            value=metrics["Most Used Ship Mode"],
+            icon="🚛"
+        )   
+
+    with c2:
+        kpi_card(
+            title="📍 States",
+            value=metrics["States Served"],
+            icon="📍"
+        )
+
+    with c3:
+        kpi_card(
+            title="🛒 Avg Order",
+            value=f"${metrics['Average Order Value']:,.2f}",
+            icon="🛒"
+        )
+
+    with c4:
+        kpi_card(
+            title="📅 Report",
+            value="Live",
+            icon="📅"
+        )
+    st.divider()
 
 # ----------------------------------------------------
 # Tabs
