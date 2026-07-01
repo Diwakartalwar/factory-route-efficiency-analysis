@@ -170,9 +170,8 @@ def kpi_card(
     subtitle="",
     color="#3B82F6"
 ):
-    st.markdown(
-                f"""
-        <div class="card">
+    st.html(
+        f"""<div class="card">
             <div class="card-header">
                 <span>{icon}</span>
                 <span>{title}</span>
@@ -186,7 +185,7 @@ def kpi_card(
                 {subtitle}
             </div>
         </div>
-        """,unsafe_allow_html=True)
+        """)
 with st.container(border=True):
     st.header("Key Performance Indicators")
     st.caption("Metrics derived from the loaded dataset.")
