@@ -1,5 +1,6 @@
 import streamlit as st
 from engine import ShippingAnalysisEngine
+from streamlit_option_menu import option_menu
 
 # ----------------------------------------------------
 # Page Configuration
@@ -33,10 +34,91 @@ except Exception as e:
 # ----------------------------------------------------
 # Sidebar
 # ----------------------------------------------------
-st.sidebar.header("Filters")
+with st.sidebar:
+    st.header("Filters")
+    selected = option_menu(
+        menu_title="Navigation",
+        options=[
+            "Dashboard",
+            "Route Analysis",
+            "Geographic Analysis",
+            "Ship Mode",
+            "Raw Dataset"
+        ],
+        icons=[
+            "speedometer2",
+            "signpost-split",
+            "geo-alt",
+            "truck",
+            "table"
+        ],
+        menu_icon="boxes",
+        default_index=0,
+    )
 
-st.sidebar.info("Filters will be added here.")
+    st.divider()
 
+    st.subheader("🎛 Dashboard Filters")
+
+    # Date Filter
+    date_range = st.date_input(
+        "Date Range",
+        value=[]
+    )
+
+    # Factory
+    factory = st.selectbox(
+        "🏭 Factory",
+        [
+            "All",
+            "Lot's O' Nuts",
+            "Wicked Choccy's",
+            "Sugar Shack",
+            "Secret Factory",
+            "The Other Factory"
+        ]
+    )
+
+    # Region
+    region = st.multiselect(
+        "🌎 Region",
+        [
+            "East",
+            "West",
+            "Central",
+            "South"
+        ]
+    )
+
+    # State
+    state = st.multiselect(
+        "📍 State",
+        []
+    )
+
+    # Ship Mode
+    ship_mode = st.multiselect(
+        "🚚 Ship Mode",
+        [
+            "Standard Class",
+            "Second Class",
+            "First Class",
+            "Same Day"
+        ]
+    )
+
+    # Lead Time
+    lead_time = st.slider(
+        "⏳ Lead Time (Days)",
+        min_value=0,
+        max_value=30,
+        value=(0, 10)
+    )
+
+    st.divider()
+
+    if st.button("🔄 Reset Filters", use_container_width=True):
+        st.rerun()
 # ----------------------------------------------------
 # KPI Section
 # ----------------------------------------------------
