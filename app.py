@@ -166,14 +166,12 @@ with st.sidebar:
 def kpi_card(
     title,
     value,
-    icon,
     subtitle="",
     color="#3B82F6"
 ):
     st.html(
         f"""<div class="card">
             <div class="card-header">
-                <span>{icon}</span>
                 <span>{title}</span>
             </div>
 
@@ -198,14 +196,12 @@ with st.container(border=True):
         kpi_card(
             title="📦 Total Shipments",
             value=f"{metrics['Total Shipments']:,}",
-            icon="📦"
         )
 
     with c2:
         kpi_card(
             title="🚚 Avg Lead Time",
             value=f"{metrics['Average Lead Time']} Days",
-            icon="🚚",
             subtitle="↓ -0.4 Days"
         )
 
@@ -213,7 +209,6 @@ with st.container(border=True):
         kpi_card(
             title="⚠ Delay Rate",
             value=f"{metrics['Delay Rate']}%",
-            icon="⚠",
             subtitle="↓ -2.1%"
         )
 
@@ -221,7 +216,6 @@ with st.container(border=True):
         kpi_card(
             title="🌎 Regions Served",
             value=metrics["Regions Served"],
-            icon="🌎"
         )
     st.divider()
     st.subheader("💰 Business Performance")
@@ -232,28 +226,24 @@ with st.container(border=True):
         kpi_card(
             title="💵 Total Sales",
             value=f"${metrics['Total Sales']:,.0f}",
-            icon="💵"
         )
 
     with c2:
         kpi_card(
             title="📈 Gross Profit",
             value=f"${metrics['Gross Profit']:,.0f}",
-            icon="📈"
         )
 
     with c3:
         kpi_card(
             title="📦 Units Sold",
             value=f"{metrics['Total Units']:,}",
-            icon="📦"
         )
 
     with c4:
         kpi_card(
             title="👥 Customers",
             value=metrics["Unique Customers"],
-            icon="👥"
         )
     st.divider()
     st.subheader("🚛 Shipping Insights")
@@ -264,28 +254,24 @@ with st.container(border=True):
         kpi_card(
             title="🚛 Ship Mode",
             value=metrics["Most Used Ship Mode"],
-            icon="🚛"
         )   
 
     with c2:
         kpi_card(
             title="📍 States",
             value=metrics["States Served"],
-            icon="📍"
         )
 
     with c3:
         kpi_card(
             title="🛒 Avg Order",
             value=f"${metrics['Average Order Value']:,.2f}",
-            icon="🛒"
         )
 
     with c4:
         kpi_card(
             title="📅 Report",
             value="Live",
-            icon="📅"
         )
     st.divider()
 
