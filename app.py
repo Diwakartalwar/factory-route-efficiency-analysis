@@ -108,23 +108,23 @@ with st.sidebar:
     )
 
     # Factory
-    factory = st.selectbox(
+    factory = st.multiselect(
         "🏭 Factory",
-        options=sorted(df["factory"].dropna().unique()),
+        options=sorted(df["Factory"].dropna().unique()),
         default=[]
     )
 
     # Region
     region = st.multiselect(
         "🌎 Region",
-        options=sorted(df["region"].dropna().unique()),
+        options=sorted(df["Region"].dropna().unique()),
         default=[]
    )
 
     # State
     state = st.multiselect(
         "📍 State",
-        options=sorted(df["state"].dropna().unique()),
+        options=sorted(df["State"].dropna().unique()),
         default=[]
     )
 

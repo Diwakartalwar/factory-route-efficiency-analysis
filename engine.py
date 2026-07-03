@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 class ShippingAnalysisEngine:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -25,8 +24,32 @@ class ShippingAnalysisEngine:
             self.df["Ship Date"] -
             self.df["Order Date"]
         ).dt.days
+        # -----------------------------
+        # Factory Mapping
+        # -----------------------------
+        factory_map = {
+            "Wonka Bar - Nutty Crunch Surprise": "Lot's O' Nuts",
+            "Wonka Bar - Fudge Mallows": "Lot's O' Nuts",
+            "Wonka Bar -Scrumdiddlyumptious": "Lot's O' Nuts",
+            "Wonka Bar - Milk Chocolate": "Wicked Choccy's",
+            "Wonka Bar - Triple Dazzle Caramel": "Wicked Choccy's",
+            "Laffy Taffy": "Sugar Shack",
+            "SweeTARTS": "Sugar Shack",
+            "Nerds": "Sugar Shack",
+            "Fun Dip": "Sugar Shack",
+            "Fizzy Lifting Drinks": "Sugar Shack",
+            "Everlasting Gobstopper": "Secret Factory",
+            "Hair Toffee": "The Other Factory",
+            "Lickable Wallpaper": "Secret Factory",
+            "Wonka Gum": "Secret Factory",
+            "Kazookles": "The Other Factory"
+        }
+
+        self.df["Factory"] = self.df["Product Name"].map(factory_map)
 
         return self.df
+
+
 
     def clean_data(self):
         """Placeholder for data cleaning."""
@@ -61,7 +84,7 @@ class ShippingAnalysisEngine:
 
             "Regions Served": df["Region"].nunique(),
 
-            "States Served": df["State/Province"].nunique(),
+            "States Served": df["State"].nunique(),
 
             "Most Used Ship Mode": df["Ship Mode"].mode()[0],
 
