@@ -110,42 +110,29 @@ with st.sidebar:
     # Factory
     factory = st.selectbox(
         "🏭 Factory",
-        [
-            "All",
-            "Lot's O' Nuts",
-            "Wicked Choccy's",
-            "Sugar Shack",
-            "Secret Factory",
-            "The Other Factory"
-        ]
+        options=sorted(df["factory"].dropna().unique()),
+        default=[]
     )
 
     # Region
     region = st.multiselect(
         "🌎 Region",
-        [
-            "East",
-            "West",
-            "Central",
-            "South"
-        ]
-    )
+        options=sorted(df["region"].dropna().unique()),
+        default=[]
+   )
 
     # State
     state = st.multiselect(
         "📍 State",
-        []
+        options=sorted(df["state"].dropna().unique()),
+        default=[]
     )
 
     # Ship Mode
     ship_mode = st.multiselect(
         "🚚 Ship Mode",
-        [
-            "Standard Class",
-            "Second Class",
-            "First Class",
-            "Same Day"
-        ]
+        options=sorted(df["Ship Mode"].dropna().unique()),
+        default=[]
     )
 
     # Lead Time
