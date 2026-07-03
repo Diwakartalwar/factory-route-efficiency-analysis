@@ -117,6 +117,28 @@ class ShippingAnalysisEngine:
 
         return metrics
     
+    def route_statistics(self):
+
+        route_df = (
+            self.df
+            .groupby("Route")
+            .agg(
+                Shipments=("Order ID", "count"),
+                Average_Lead_Time=("Lead Time", "mean"),
+                Total_Sales=("Sales", "sum"),
+                Total_Profit=("Gross Profit", "sum"),
+                Units=("Units", "sum")
+            )
+            .reset_index()
+        )
+
+        route_df["Average_Lead_Time"] = (
+            route_df["Average_Lead_Time"]
+            .round(2)
+        )
+
+        return route_df
+    
     def top_routes(self, n=10):
         return (
             self.df
@@ -127,6 +149,7 @@ class ShippingAnalysisEngine:
             )
             .sort_values("Avg_Lead_Time")
             .head(n)
+            .reset_index()
         )
     
     def worst_routes(self, n=10):
@@ -139,9 +162,22 @@ class ShippingAnalysisEngine:
             )
             .sort_values("Avg_Lead_Time", ascending=False)
             .head(n)
+            .reset_index()
         )
     
+    def shipment_trend(self):
 
+        trend = (
+            self.df
+            .groupby("Order Date")
+            .agg(
+                Shipments=("Order ID","count"),
+                Sales=("Sales","sum")
+            )
+            .reset_index()
+        )
+
+        return trend
     def get_filtered_data(
         self,
         factory=None,

@@ -1,6 +1,7 @@
 import streamlit as st
 from engine import ShippingAnalysisEngine
 from streamlit_option_menu import option_menu
+import plotly.express as px
 
 # ----------------------------------------------------
 # Page Configuration
@@ -284,7 +285,100 @@ with tab1:
 # ----------------------------------------------------
 with tab2:
     st.subheader("Route Analysis")
-    st.info("Coming Soon")
+    trend = engine.shipment_trend()
+
+    fig1 = px.line(
+        trend,
+        x="Order Date",
+        y="Shipments",
+        markers=True,
+        template="plotly_dark"
+    )
+
+    fig1.update_traces(
+        line=dict(width=4),
+        marker=dict(size=8)
+    )
+
+    fig1.update_layout(
+        title="📈 Daily Shipment Trend",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        hovermode="x unified",
+        height=420,
+        title_x=0.02
+    )
+
+    st.plotly_chart(
+        fig1,
+        use_container_width=True,
+        key="shipment_trend",
+    )
+    st.divider()
+    left, right = st.columns(2)
+    with left:
+        top = engine.top_routes()
+
+        fig2 = px.bar(
+            top,
+            x="Avg_Lead_Time",
+            y="Route",
+            orientation="h",
+            text="Avg_Lead_Time",
+            color="Avg_Lead_Time",
+            template="plotly_dark"
+        )
+
+        fig2.update_layout(
+            title="🏆 Top 10 Fastest Routes",
+            yaxis=dict(categoryorder="total ascending"),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=500,
+            title_x=0.02
+        )
+
+        fig2.update_traces(
+            texttemplate="%{text:.2f} Days",
+            textposition="outside"
+        )
+
+        st.plotly_chart(
+            fig2,
+            use_container_width=True,
+            key="top-10",
+        )
+    with right:
+        worst = engine.worst_routes()
+
+        fig3 = px.bar(
+            worst,
+            x="Avg_Lead_Time",
+            y="Route",
+            orientation="h",
+            text="Avg_Lead_Time",
+            color="Avg_Lead_Time",
+            template="plotly_dark"
+        )
+
+        fig3.update_layout(
+            title="🐢 Top 10 Slowest Routes",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=500,
+            title_x=0.02
+        )
+
+        fig3.update_traces(
+            texttemplate="%{text:.2f} Days",
+            textposition="outside"
+        )
+
+        st.plotly_chart(
+            fig3,
+            use_container_width=True,
+            key="worst10",
+        )
 
 # ----------------------------------------------------
 # Geographic Analysis
