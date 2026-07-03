@@ -47,6 +47,18 @@ class ShippingAnalysisEngine:
 
         self.df["Factory"] = self.df["Product Name"].map(factory_map)
 
+        self.df["Route"] = (
+            self.df["Factory"] +
+            " → " +
+            self.df["State"]
+        )
+        max_days = self.df["Lead Time"].max()
+
+        self.df["Efficiency Score"] = (
+            (max_days - self.df["Lead Time"]) /
+            max_days * 100
+        ).round(2)
+
         return self.df
 
 
@@ -104,5 +116,55 @@ class ShippingAnalysisEngine:
         }
 
         return metrics
+    
+    def top_routes(self, n=10):
+        return (
+            self.df
+            .groupby("Route")
+            .agg(
+                Shipments=("Order ID","count"),
+                Avg_Lead_Time=("Lead Time","mean")
+            )
+            .sort_values("Avg_Lead_Time")
+            .head(n)
+        )
+    
+    def worst_routes(self, n=10):
+        return (
+            self.df
+            .groupby("Route")
+            .agg(
+                Shipments=("Order ID","count"),
+                Avg_Lead_Time=("Lead Time","mean")
+            )
+            .sort_values("Avg_Lead_Time", ascending=False)
+            .head(n)
+        )
+    
+
+    def get_filtered_data(
+        self,
+        factory=None,
+        region=None,
+        state=None,
+        ship_mode=None
+    ):
+
+        df = self.df.copy()
+
+        if factory:
+            df = df[df["Factory"].isin(factory)]
+
+        if region:
+            df = df[df["Region"].isin(region)]
+
+        if state:
+            df = df[df["State/Province"].isin(state)]
+
+        if ship_mode:
+            df = df[df["Ship Mode"].isin(ship_mode)]
+
+        return df
+
     def get_dataframe(self):
         return self.df
