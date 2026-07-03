@@ -202,5 +202,70 @@ class ShippingAnalysisEngine:
 
         return df
 
+
+    def shipment_volume(self):
+
+        return (
+            self.df
+            .groupby("Route")
+            .agg(
+                Shipments=("Order ID", "count")
+            )
+            .sort_values("Shipments", ascending=False)
+            .head(10)
+            .reset_index()
+        )
+    
+    def sales_profit(self):
+
+        return (
+            self.df
+            .groupby("Route")
+            .agg(
+                Sales=("Sales","sum"),
+                Profit=("Gross Profit","sum")
+            )
+            .sort_values("Sales", ascending=False)
+            .head(10)
+            .reset_index()
+        )
+    def route_scatter(self):
+
+        return (
+        self.df
+        .groupby("Route")
+        .agg(
+            Sales=("Sales","sum"),
+            Lead_Time=("Lead Time","mean"),
+            Shipments=("Order ID","count")
+        )
+        .reset_index()
+        )
+    
+    def region_analysis(self):
+
+        return (
+        self.df
+        .groupby("Region")
+        .agg(
+            Sales=("Sales","sum"),
+            Profit=("Gross Profit","sum"),
+            Shipments=("Order ID","count"),
+            Lead_Time=("Lead Time","mean")
+        )
+        .reset_index()
+        )
+    def state_analysis(self):
+
+        return (
+        self.df
+        .groupby("State")
+        .agg(
+            Sales=("Sales","sum"),
+            Shipments=("Order ID","count"),
+            Lead_Time=("Lead Time","mean")
+        )
+        .reset_index()
+        )
     def get_dataframe(self):
         return self.df

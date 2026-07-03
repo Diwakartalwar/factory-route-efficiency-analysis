@@ -379,13 +379,115 @@ with tab2:
             use_container_width=True,
             key="worst10",
         )
+    volume = engine.shipment_volume()
+
+    fig = px.bar(
+            volume,
+            x="Shipments",
+            y="Route",
+            orientation="h",
+            color="Shipments",
+            text="Shipments",
+            template="plotly_dark"
+        )
+
+    fig.update_layout(
+            title="📦 Top Shipment Routes",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=500
+        )
+
+    st.plotly_chart(fig, use_container_width=True, key="shipment_volume")
+
+    sales = engine.sales_profit()
+
+    fig = px.bar(
+        sales,
+        x="Route",
+        y=["Sales","Profit"],
+        barmode="group",
+        template="plotly_dark"
+    )
+
+    fig.update_layout(
+        title="💰 Sales vs Profit",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True, key="sales_profit")
+
+    scatter = engine.route_scatter()
+
+    fig = px.scatter(
+        scatter,
+        x="Lead_Time",
+        y="Sales",
+        size="Shipments",
+        color="Lead_Time",
+        hover_name="Route",
+        template="plotly_dark"
+    )
+
+    fig.update_layout(
+        title="🚚 Route Efficiency",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=550
+    )
+
+    st.plotly_chart(fig, use_container_width=True, key="route_scatter")
+
+
 
 # ----------------------------------------------------
 # Geographic Analysis
 # ----------------------------------------------------
 with tab3:
     st.subheader("Geographic Analysis")
-    st.info("Coming Soon")
+    col1,col2 = st.columns(2)
+    with col1:
+        region = engine.region_analysis()
+
+        fig = px.bar(
+            region,
+            x="Region",
+            y="Sales",
+            color="Lead_Time",
+            text="Sales",
+            template="plotly_dark"
+        )
+
+        fig.update_layout(
+            title="🌎 Regional Sales Performance",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=450
+        )
+
+        st.plotly_chart(fig, use_container_width=True, key="region")
+    with col2:
+        state = engine.state_analysis()
+
+        fig = px.bar(
+            state.sort_values("Sales", ascending=False).head(15),
+            x="Sales",
+            y="State",
+            orientation="h",
+            color="Lead_Time",
+            template="plotly_dark"
+        )
+
+        fig.update_layout(
+            title="📍 Top States by Sales",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=550
+        )
+
+        st.plotly_chart(fig, use_container_width=True, key="state")
 
 # ----------------------------------------------------
 # Ship Mode
