@@ -24,6 +24,15 @@ class ShippingAnalysisEngine:
             self.df["Ship Date"] -
             self.df["Order Date"]
         ).dt.days
+        print("=" * 60)
+        print(self.df[[
+            "Order Date",
+            "Ship Date",
+            "Lead Time"
+        ]].head(20))
+
+        print("=" * 60)
+        print(self.df["Lead Time"].describe())
         # -----------------------------
         # Factory Mapping
         # -----------------------------
