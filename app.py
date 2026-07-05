@@ -472,7 +472,7 @@ with tab3:
         state = engine.state_analysis()
 
         fig = px.bar(
-            state.sort_values("Sales", ascending=False).head(15),
+            state.sort_values("Sales", ascending=True).head(15),
             x="Sales",
             y="State",
             orientation="h",
