@@ -86,14 +86,12 @@ with st.sidebar:
     selected = option_menu(
         menu_title="Navigation",
         options=[
-            "Dashboard",
             "Route Analysis",
             "Geographic Analysis",
             "Ship Mode",
             "Raw Dataset"
         ],
         icons=[
-            "speedometer2",
             "signpost-split",
             "geo-alt",
             "truck",
@@ -274,391 +272,383 @@ with st.container(border=True):
     st.divider()
 
 # ----------------------------------------------------
-# Tabs
-# ----------------------------------------------------
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📊 Overview",
-    "🚚 Route Analysis",
-    "🗺 Geographic Analysis",
-    "🚛 Ship Mode"
-])
-
-# ----------------------------------------------------
 # Overview
 # ----------------------------------------------------
-with tab1:
-    st.subheader("Dataset Preview")
-    st.dataframe(df, use_container_width=True)
+if selected == "Raw Dataset":
+    with st.container(border=True):
+        st.subheader("Dataset Preview")
+        st.dataframe(df, use_container_width=True)
 
 # ----------------------------------------------------
 # Route Analysis
 # ----------------------------------------------------
-with tab2:
-    st.subheader("Route Analysis")
-    trend = engine.shipment_trend()
+if selected == "Route Analysis":
+    with st.container(border=True):    
+        st.subheader("Route Analysis")
+        trend = engine.shipment_trend()
 
-    fig1 = px.line(
-        trend,
-        x="Order Date",
-        y="Shipments",
-        markers=True,
-        template="plotly_dark"
-    )
-
-    fig1.update_traces(
-        line=dict(width=4),
-        marker=dict(size=8)
-    )
-
-    fig1.update_layout(
-        title="📈 Daily Shipment Trend",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        hovermode="x unified",
-        height=420,
-        title_x=0.02
-    )
-
-    st.plotly_chart(
-        fig1,
-        use_container_width=True,
-        key="shipment_trend",
-    )
-    st.divider()
-    left, right = st.columns(2)
-    with left:
-        top = engine.top_routes()
-
-        fig2 = px.bar(
-            top,
-            x="Avg_Lead_Time",
-            y="Route",
-            orientation="h",
-            text="Avg_Lead_Time",
-            color="Avg_Lead_Time",
+        fig1 = px.line(
+            trend,
+            x="Order Date",
+            y="Shipments",
+            markers=True,
             template="plotly_dark"
         )
 
-        fig2.update_layout(
-            title="🏆 Top 10 Fastest Routes",
-            yaxis=dict(categoryorder="total ascending"),
+        fig1.update_traces(
+            line=dict(width=4),
+            marker=dict(size=8)
+        )
+
+        fig1.update_layout(
+            title="📈 Daily Shipment Trend",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            height=500,
+            hovermode="x unified",
+            height=420,
             title_x=0.02
         )
 
-        fig2.update_traces(
-            texttemplate="%{text:.2f} Days",
-            textposition="outside"
-        )
-
         st.plotly_chart(
-            fig2,
+            fig1,
             use_container_width=True,
-            key="top-10",
+            key="shipment_trend",
         )
-    with right:
-        worst = engine.worst_routes()
+        st.divider()
+        left, right = st.columns(2)
+        with left:
+            top = engine.top_routes()
 
-        fig3 = px.bar(
-            worst,
-            x="Avg_Lead_Time",
-            y="Route",
-            orientation="h",
-            text="Avg_Lead_Time",
-            color="Avg_Lead_Time",
+            fig2 = px.bar(
+                top,
+                x="Avg_Lead_Time",
+                y="Route",
+                orientation="h",
+                text="Avg_Lead_Time",
+                color="Avg_Lead_Time",
+                template="plotly_dark"
+            )
+
+            fig2.update_layout(
+                title="🏆 Top 10 Fastest Routes",
+                yaxis=dict(categoryorder="total ascending"),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=500,
+                title_x=0.02
+            )
+
+            fig2.update_traces(
+                texttemplate="%{text:.2f} Days",
+                textposition="outside"
+            )
+
+            st.plotly_chart(
+                fig2,
+                use_container_width=True,
+                key="top-10",
+            )
+        with right:
+            worst = engine.worst_routes()
+
+            fig3 = px.bar(
+                worst,
+                x="Avg_Lead_Time",
+                y="Route",
+                orientation="h",
+                text="Avg_Lead_Time",
+                color="Avg_Lead_Time",
+                template="plotly_dark"
+            )
+
+            fig3.update_layout(
+                title="🐢 Top 10 Slowest Routes",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=500,
+                title_x=0.02
+            )
+
+            fig3.update_traces(
+                texttemplate="%{text:.2f} Days",
+                textposition="outside"
+            )
+
+            st.plotly_chart(
+                fig3,
+                use_container_width=True,
+                key="worst10",
+            )
+        volume = engine.shipment_volume()
+
+        fig = px.bar(
+                volume,
+                x="Shipments",
+                y="Route",
+                orientation="h",
+                color="Shipments",
+                text="Shipments",
+                template="plotly_dark"
+            )
+
+        fig.update_layout(
+                title="📦 Top Shipment Routes",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=500
+            )
+
+        st.plotly_chart(fig, use_container_width=True, key="shipment_volume")
+
+        sales = engine.sales_profit()
+
+        fig = px.bar(
+            sales,
+            x="Route",
+            y=["Sales","Profit"],
+            barmode="group",
             template="plotly_dark"
         )
 
-        fig3.update_layout(
-            title="🐢 Top 10 Slowest Routes",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            height=500,
-            title_x=0.02
-        )
-
-        fig3.update_traces(
-            texttemplate="%{text:.2f} Days",
-            textposition="outside"
-        )
-
-        st.plotly_chart(
-            fig3,
-            use_container_width=True,
-            key="worst10",
-        )
-    volume = engine.shipment_volume()
-
-    fig = px.bar(
-            volume,
-            x="Shipments",
-            y="Route",
-            orientation="h",
-            color="Shipments",
-            text="Shipments",
-            template="plotly_dark"
-        )
-
-    fig.update_layout(
-            title="📦 Top Shipment Routes",
+        fig.update_layout(
+            title="💰 Sales vs Profit",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             height=500
         )
 
-    st.plotly_chart(fig, use_container_width=True, key="shipment_volume")
+        st.plotly_chart(fig, use_container_width=True, key="sales_profit")
 
-    sales = engine.sales_profit()
+        scatter = engine.route_scatter()
 
-    fig = px.bar(
-        sales,
-        x="Route",
-        y=["Sales","Profit"],
-        barmode="group",
-        template="plotly_dark"
-    )
+        fig = px.scatter(
+            scatter,
+            x="Lead_Time",
+            y="Sales",
+            size="Shipments",
+            color="Lead_Time",
+            hover_name="Route",
+            template="plotly_dark"
+        )
 
-    fig.update_layout(
-        title="💰 Sales vs Profit",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=500
-    )
+        fig.update_layout(
+            title="🚚 Route Efficiency",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=550
+        )
 
-    st.plotly_chart(fig, use_container_width=True, key="sales_profit")
-
-    scatter = engine.route_scatter()
-
-    fig = px.scatter(
-        scatter,
-        x="Lead_Time",
-        y="Sales",
-        size="Shipments",
-        color="Lead_Time",
-        hover_name="Route",
-        template="plotly_dark"
-    )
-
-    fig.update_layout(
-        title="🚚 Route Efficiency",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=550
-    )
-
-    st.plotly_chart(fig, use_container_width=True, key="route_scatter")
+        st.plotly_chart(fig, use_container_width=True, key="route_scatter")
 
 
 
 # ----------------------------------------------------
 # Geographic Analysis
 # ----------------------------------------------------
-with tab3:
-    st.subheader("Geographic Analysis")
-    col1,col2 = st.columns(2)
-    with col1:
-        region = engine.region_analysis()
+elif selected == "Geographic Analysis":
+    with st.container(border=True):
+        st.subheader("Geographic Analysis")
+        col1,col2 = st.columns(2)
+        with col1:
+            region = engine.region_analysis()
 
-        fig = px.bar(
-            region,
-            x="Region",
-            y="Sales",
-            color="Lead_Time",
-            text="Sales",
-            template="plotly_dark"
-        )
-
-        fig.update_layout(
-            title="🌎 Regional Sales Performance",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            height=450
-        )
-
-        st.plotly_chart(fig, use_container_width=True, key="region")
-    with col2:
-        state = engine.state_analysis()
-
-        fig = px.bar(
-            state.sort_values("Sales", ascending=True).head(15),
-            x="Sales",
-            y="State",
-            orientation="h",
-            color="Lead_Time",
-            template="plotly_dark"
-        )
-
-        fig.update_layout(
-            title="📍 Top States by Sales",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            height=550
-        )
-
-        st.plotly_chart(fig, use_container_width=True, key="state")
-    col3,col4 = st.columns(2)
-    with col3:
-        region = engine.region_distribution()
-
-        fig = px.pie(
-            region,
-            names="Region",
-            values="Shipments",
-            hole=0.65,
-            template="plotly_dark"
-        )
-        fig.update_layout(            
-            title="📍 Top Regions by shipments",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            height=550)
-
-        st.plotly_chart(fig, width="stretch", key="region_donut")
-
-    with col4:
-        state = engine.state_analysis()
-
-        fig = px.density_heatmap(
-                state,
-                x="State",
-                y="Lead_Time",
-                z="Sales",
+            fig = px.bar(
+                region,
+                x="Region",
+                y="Sales",
+                color="Lead_Time",
+                text="Sales",
                 template="plotly_dark"
+            )
+
+            fig.update_layout(
+                title="🌎 Regional Sales Performance",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=450
+            )
+
+            st.plotly_chart(fig, use_container_width=True, key="region")
+        with col2:
+            state = engine.state_analysis()
+
+            fig = px.bar(
+                state.sort_values("Sales", ascending=True).head(15),
+                x="Sales",
+                y="State",
+                orientation="h",
+                color="Lead_Time",
+                template="plotly_dark"
+            )
+
+            fig.update_layout(
+                title="📍 Top States by Sales",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=550
+            )
+
+            st.plotly_chart(fig, use_container_width=True, key="state")
+        col3,col4 = st.columns(2)
+        with col3:
+            region = engine.region_distribution()
+
+            fig = px.pie(
+                region,
+                names="Region",
+                values="Shipments",
+                hole=0.65,
+                template="plotly_dark"
+            )
+            fig.update_layout(            
+                title="📍 Top Regions by shipments",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=550)
+
+            st.plotly_chart(fig, width="stretch", key="region_donut")
+
+        with col4:
+            state = engine.state_analysis()
+
+            fig = px.density_heatmap(
+                    state,
+                    x="State",
+                    y="Lead_Time",
+                    z="Sales",
+                    template="plotly_dark"
+            )
+            fig.update_layout(
+                title={
+                    "text":"🌳 Sales Contribution by State",
+                    "x":0.02
+                },
+                height=600,
+                paper_bgcolor="rgba(0,0,0,0)"
+            )
+            st.plotly_chart(fig, width="stretch", key="heat")
+        fig = px.sunburst(
+            df,
+            path=["Region","State"],
+            values="Sales",
+            color="Gross Profit",
+            template="plotly_dark",
+            color_continuous_scale="Turbo"
         )
+
         fig.update_layout(
             title={
-                "text":"🌳 Sales Contribution by State",
+                "text":"🌞 Region → State Sales Hierarchy",
                 "x":0.02
             },
-            height=600,
+            height=650,
             paper_bgcolor="rgba(0,0,0,0)"
         )
-        st.plotly_chart(fig, width="stretch", key="heat")
-    fig = px.sunburst(
-        df,
-        path=["Region","State"],
-        values="Sales",
-        color="Gross Profit",
-        template="plotly_dark",
-        color_continuous_scale="Turbo"
-    )
 
-    fig.update_layout(
-        title={
-            "text":"🌞 Region → State Sales Hierarchy",
-            "x":0.02
-        },
-        height=650,
-        paper_bgcolor="rgba(0,0,0,0)"
-    )
-
-    st.plotly_chart(fig,width="stretch",key="geo5")
+        st.plotly_chart(fig,width="stretch",key="geo5")
 
 # ----------------------------------------------------
 # Ship Mode
 # ----------------------------------------------------
-with tab4:
-    st.subheader("Ship Mode Analysis")
-    ship = engine.shipmode_analysis()
-    fig = px.bar(
-    ship,
-    x="Ship Mode",
-    y="Shipments",
-    color="Shipments",
-    text_auto=True,
-    template="plotly_dark",
-    color_continuous_scale="Plasma"
-    )
-
-    fig.update_layout(
-        title={
-            "text":"🚛 Shipment Volume by Shipping Method",
-            "x":0.02
-        },
-        xaxis_title="Shipping Mode",
-        yaxis_title="Orders",
-        height=500,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
-    st.plotly_chart(fig,width="stretch",key="ship1")
-    fig = px.pie(
-        ship,
-        names="Ship Mode",
-        values="Sales",
-        hole=.72,
-        template="plotly_dark"
-    )
-
-    fig.update_layout(
-        title={
-            "text":"💰 Revenue Contribution by Shipping Mode",
-            "x":0.02
-        },
-        height=500,
-        paper_bgcolor="rgba(0,0,0,0)"
-    )
-
-    fig.update_traces(
-        textinfo="percent+label"
-    )
-
-    st.plotly_chart(fig,width="stretch",key="ship2")
-    fig = px.line(
+elif selected == "Ship Mode":
+    with st.container(border=True):    
+        st.subheader("Ship Mode Analysis")
+        ship = engine.shipmode_analysis()
+        fig = px.bar(
         ship,
         x="Ship Mode",
-        y="Lead_Time",
-        markers=True,
-        template="plotly_dark"
-    )
-
-    fig.update_layout(
-        title={
-            "text":"📈 Average Lead Time by Ship Mode",
-            "x":0.02
-        },
-        xaxis_title="Ship Mode",
-        yaxis_title="Lead Time",
-        height=450,
-        hovermode="x unified",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
-
-    fig.update_traces(
-        line=dict(width=5),
-        marker=dict(size=12)
-    )
-
-    st.plotly_chart(fig,width="stretch",key="ship3")
-    fig = px.scatter(
-        ship,
-        x="Lead_Time",
-        y="Sales",
-        size="Shipments",
-        color="Profit",
-        hover_name="Ship Mode",
+        y="Shipments",
+        color="Shipments",
+        text_auto=True,
         template="plotly_dark",
-        size_max=60
-    )
+        color_continuous_scale="Plasma"
+        )
 
-    fig.update_layout(
-        title={
-            "text":"🎯 Shipping Mode Efficiency Matrix",
-            "x":0.02
-        },
-        xaxis_title="Average Lead Time",
-        yaxis_title="Sales",
-        height=600,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)"
-    )
+        fig.update_layout(
+            title={
+                "text":"🚛 Shipment Volume by Shipping Method",
+                "x":0.02
+            },
+            xaxis_title="Shipping Mode",
+            yaxis_title="Orders",
+            height=500,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)"
+        )
 
-    st.plotly_chart(fig,width="stretch",key="ship4")
+        st.plotly_chart(fig,width="stretch",key="ship1")
+        fig = px.pie(
+            ship,
+            names="Ship Mode",
+            values="Sales",
+            hole=.72,
+            template="plotly_dark"
+        )
 
-st.divider()
+        fig.update_layout(
+            title={
+                "text":"💰 Revenue Contribution by Shipping Mode",
+                "x":0.02
+            },
+            height=500,
+            paper_bgcolor="rgba(0,0,0,0)"
+        )
+
+        fig.update_traces(
+            textinfo="percent+label"
+        )
+
+        st.plotly_chart(fig,width="stretch",key="ship2")
+        fig = px.line(
+            ship,
+            x="Ship Mode",
+            y="Lead_Time",
+            markers=True,
+            template="plotly_dark"
+        )
+
+        fig.update_layout(
+            title={
+                "text":"📈 Average Lead Time by Ship Mode",
+                "x":0.02
+            },
+            xaxis_title="Ship Mode",
+            yaxis_title="Lead Time",
+            height=450,
+            hovermode="x unified",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)"
+        )
+
+        fig.update_traces(
+            line=dict(width=5),
+            marker=dict(size=12)
+        )
+
+        st.plotly_chart(fig,width="stretch",key="ship3")
+        fig = px.scatter(
+            ship,
+            x="Lead_Time",
+            y="Sales",
+            size="Shipments",
+            color="Profit",
+            hover_name="Ship Mode",
+            template="plotly_dark",
+            size_max=60
+        )
+
+        fig.update_layout(
+            title={
+                "text":"🎯 Shipping Mode Efficiency Matrix",
+                "x":0.02
+            },
+            xaxis_title="Average Lead Time",
+            yaxis_title="Sales",
+            height=600,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)"
+        )
+
+        st.plotly_chart(fig,width="stretch",key="ship4")
 
 st.caption("Developed using Python, Pandas, Plotly, and Streamlit.")
