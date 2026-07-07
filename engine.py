@@ -71,16 +71,62 @@ class ShippingAnalysisEngine:
         return self.df
 
 
-
     def clean_data(self):
-        """Placeholder for data cleaning."""
+
         if self.df is None:
             return None
 
-        # Future:
-        # - Convert dates
-        # - Remove invalid rows
-        # - Handle missing values
+        # Remove duplicate rows
+        self.df.drop_duplicates(inplace=True)
+
+        # Remove rows with missing important values
+        self.df.dropna(
+            subset=[
+                "Order Date",
+                "Ship Date",
+                "Sales",
+                "Gross Profit",
+                "Units"
+            ],
+            inplace=True
+        )
+
+        # Remove negative values
+        self.df = self.df[
+            self.df["Sales"] >= 0
+        ]
+
+        self.df = self.df[
+            self.df["Gross Profit"] >= 0
+        ]
+
+        self.df = self.df[
+            self.df["Units"] > 0
+        ]
+
+        # Remove whitespace
+        text_columns = [
+            "Region",
+            "State",
+            "City",
+            "Ship Mode",
+            "Division",
+            "Product Name"
+        ]
+
+        for col in text_columns:
+
+            self.df[col] = (
+                self.df[col]
+                .astype(str)
+                .str.strip()
+            )
+
+        # Reset index
+        self.df.reset_index(
+            drop=True,
+            inplace=True
+        )
 
         return self.df
 
@@ -276,5 +322,27 @@ class ShippingAnalysisEngine:
         )
         .reset_index()
         )
+    def region_distribution(self):
+        return (
+            self.df
+            .groupby("Region")
+            .size()
+            .reset_index(name="Shipments")
+        )
+    def shipmode_analysis(self):
+
+        return (
+            self.df
+            .groupby("Ship Mode")
+            .agg(
+                Shipments=("Order ID","count"),
+                Sales=("Sales","sum"),
+                Profit=("Gross Profit","sum"),
+                Lead_Time=("Lead Time","mean"),
+                Units=("Units","sum")
+            )
+            .reset_index()
+        )
+    
     def get_dataframe(self):
         return self.df
