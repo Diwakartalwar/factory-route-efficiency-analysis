@@ -244,7 +244,7 @@ class ShippingAnalysisEngine:
             df = df[df["Region"].isin(region)]
 
         if state:
-            df = df[df["State/Province"].isin(state)]
+            df = df[df["State"].isin(state)]
 
         if ship_mode:
             df = df[df["Ship Mode"].isin(ship_mode)]
