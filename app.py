@@ -1,5 +1,6 @@
 import streamlit as st
 from engine import ShippingAnalysisEngine
+import pandas as pd
 from streamlit_option_menu import option_menu
 import plotly.express as px
 
@@ -72,6 +73,7 @@ try:
     df = engine.load_data()
     if enable_cleaning:
         df = engine.clean_data()
+    filtered_df = df.copy()
     metrics = engine.calculate_metrics()
 
 except Exception as e:
@@ -103,10 +105,24 @@ with st.sidebar:
     st.subheader("🎛 Dashboard Filters")
 
     # Date Filter
+    min_date = df["Order Date"].min().date()
+    max_date = df["Order Date"].max().date()
+
     date_range = st.date_input(
-        "Date Range",
-        value=[]
+        "📅 Date Range",
+        value=(min_date, max_date),
+        min_value=min_date,
+        max_value=max_date,
     )
+    if len(date_range) == 2:
+        start_date, end_date = date_range
+
+        filtered_df = filtered_df[
+            filtered_df["Order Date"].between(
+                pd.Timestamp(start_date),
+                pd.Timestamp(end_date)
+            )
+        ]
 
     # Factory
     factory = st.multiselect(
@@ -114,13 +130,22 @@ with st.sidebar:
         options=sorted(df["Factory"].dropna().unique()),
         default=[]
     )
+    if factory:
+        filtered_df = filtered_df[
+            filtered_df["Factory"].isin(factory)
+        ]
 
+    
     # Region
     region = st.multiselect(
         "🌎 Region",
         options=sorted(df["Region"].dropna().unique()),
         default=[]
-   )
+    )
+    if region:
+        filtered_df = filtered_df[
+        filtered_df["Region"].isin(region)
+        ]
 
     # State
     state = st.multiselect(
@@ -128,6 +153,10 @@ with st.sidebar:
         options=sorted(df["State"].dropna().unique()),
         default=[]
     )
+    if state:
+        filtered_df = filtered_df[
+            filtered_df["State"].isin(state)
+        ]
 
     # Ship Mode
     ship_mode = st.multiselect(
@@ -135,14 +164,23 @@ with st.sidebar:
         options=sorted(df["Ship Mode"].dropna().unique()),
         default=[]
     )
+    if ship_mode:
+        filtered_df = filtered_df[
+            filtered_df["Ship Mode"].isin(ship_mode)
+        ]
 
     # Lead Time
+    lead_min = int(df["Lead Time"].min())
+    lead_max = int(df["Lead Time"].max())
+
     lead_time = st.slider(
-        "⏳ Lead Time (Days)",
-        min_value=0,
-        max_value=30,
-        value=(0, 10)
+        "⏱ Lead Time (Days)",
+        min_value=lead_min,
+        max_value=lead_max,
+        value=(lead_min, lead_max)
     )
+    engine.df = filtered_df
+    metrics = engine.calculate_metrics()
 
     st.divider()
 
@@ -157,7 +195,6 @@ if enable_cleaning:
     st.success("✅ Cleaned Dataset Loaded")
 
 else:
-
     st.info("📄 Original Dataset Loaded")
 def kpi_card(
     title,
@@ -439,8 +476,6 @@ if selected == "Route Analysis":
         )
 
         st.plotly_chart(fig, use_container_width=True, key="route_scatter")
-
-
 
 # ----------------------------------------------------
 # Geographic Analysis

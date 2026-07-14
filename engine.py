@@ -1,4 +1,60 @@
+import streamlit as st
 import pandas as pd
+
+@st.cache_data(show_spinner=False)
+def load_data_cached(data_path):
+
+    df = pd.read_csv(data_path)
+
+    df["Order Date"] = pd.to_datetime(
+        df["Order Date"],
+        dayfirst=True
+    )
+
+    df["Ship Date"] = pd.to_datetime(
+        df["Ship Date"],
+        dayfirst=True
+    )
+
+    df["Lead Time"] = (
+        df["Ship Date"] -
+        df["Order Date"]
+    ).dt.days
+
+    factory_map = {
+        "Wonka Bar - Nutty Crunch Surprise": "Lot's O' Nuts",
+        "Wonka Bar - Fudge Mallows": "Lot's O' Nuts",
+        "Wonka Bar -Scrumdiddlyumptious": "Lot's O' Nuts",
+        "Wonka Bar - Milk Chocolate": "Wicked Choccy's",
+        "Wonka Bar - Triple Dazzle Caramel": "Wicked Choccy's",
+        "Laffy Taffy": "Sugar Shack",
+        "SweeTARTS": "Sugar Shack",
+        "Nerds": "Sugar Shack",
+        "Fun Dip": "Sugar Shack",
+        "Fizzy Lifting Drinks": "Sugar Shack",
+        "Everlasting Gobstopper": "Secret Factory",
+        "Hair Toffee": "The Other Factory",
+        "Lickable Wallpaper": "Secret Factory",
+        "Wonka Gum": "Secret Factory",
+        "Kazookles": "The Other Factory"
+    }
+
+    df["Factory"] = df["Product Name"].map(factory_map)
+
+    df["Route"] = (
+        df["Factory"] +
+        " → " +
+        df["State"]
+    )
+
+    max_days = df["Lead Time"].max()
+
+    df["Efficiency Score"] = (
+        (max_days - df["Lead Time"])
+        / max_days * 100
+    ).round(2)
+
+    return df
 
 class ShippingAnalysisEngine:
     def __init__(self, data_path):
@@ -6,71 +62,9 @@ class ShippingAnalysisEngine:
         self.df = None
 
     def load_data(self):
-
-        self.df = pd.read_csv(self.data_path)
-
-        self.df["Order Date"] = pd.to_datetime(
-            self.df["Order Date"],
-            dayfirst=True
-        )
-
-        self.df["Ship Date"] = pd.to_datetime(
-            self.df["Ship Date"],
-            dayfirst=True
-        )
-
-        # Create Lead Time
-        self.df["Lead Time"] = (
-            self.df["Ship Date"] -
-            self.df["Order Date"]
-        ).dt.days
-        print("=" * 60)
-        print(self.df[[
-            "Order Date",
-            "Ship Date",
-            "Lead Time"
-        ]].head(20))
-
-        print("=" * 60)
-        print(self.df["Lead Time"].describe())
-        # -----------------------------
-        # Factory Mapping
-        # -----------------------------
-        factory_map = {
-            "Wonka Bar - Nutty Crunch Surprise": "Lot's O' Nuts",
-            "Wonka Bar - Fudge Mallows": "Lot's O' Nuts",
-            "Wonka Bar -Scrumdiddlyumptious": "Lot's O' Nuts",
-            "Wonka Bar - Milk Chocolate": "Wicked Choccy's",
-            "Wonka Bar - Triple Dazzle Caramel": "Wicked Choccy's",
-            "Laffy Taffy": "Sugar Shack",
-            "SweeTARTS": "Sugar Shack",
-            "Nerds": "Sugar Shack",
-            "Fun Dip": "Sugar Shack",
-            "Fizzy Lifting Drinks": "Sugar Shack",
-            "Everlasting Gobstopper": "Secret Factory",
-            "Hair Toffee": "The Other Factory",
-            "Lickable Wallpaper": "Secret Factory",
-            "Wonka Gum": "Secret Factory",
-            "Kazookles": "The Other Factory"
-        }
-
-        self.df["Factory"] = self.df["Product Name"].map(factory_map)
-
-        self.df["Route"] = (
-            self.df["Factory"] +
-            " → " +
-            self.df["State"]
-        )
-        max_days = self.df["Lead Time"].max()
-
-        self.df["Efficiency Score"] = (
-            (max_days - self.df["Lead Time"]) /
-            max_days * 100
-        ).round(2)
-
+        self.df = load_data_cached(self.data_path)
         return self.df
-
-
+        
     def clean_data(self):
 
         if self.df is None:
